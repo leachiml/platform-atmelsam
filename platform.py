@@ -92,6 +92,10 @@ class AtmelsamPlatform(PlatformBase):
             self.packages["toolchain-gccarmnoneeabi"]["version"] = "~1.80201.0"
             if "windows" not in get_systype():
                 self.packages["tool-gperf"]["optional"] = False
+        # ===== CMSIS =====
+        if "cmsis" in variables.get("pioframework", []):
+            self.packages["framework-cmsis"]["optional"] = False
+            self.packages["framework-cmsis-atmel"]["optional"] = False
 
         for name in disabled_pkgs:
             del self.packages[name]
