@@ -20,11 +20,15 @@
     "type": "git",
     "url": "https://github.com/platformio/platform-atmelsam.git"
   },
-  "version": "6.3.0",
+  "version": "6.3.1",
   "frameworks": {
     "arduino": {
       "package": "framework-arduino-sam",
       "script": "builder/frameworks/arduino.py"
+    },
+    "cmsis": {
+      "package": "framework-cmsis",
+      "script": "builder/frameworks/cmsis.py"
     },
     "mbed": {
       "package": "framework-mbed",
@@ -37,10 +41,6 @@
     "zephyr": {
       "package": "framework-zephyr",
       "script": "builder/frameworks/zephyr.py"
-    },
-    "cmsis": {
-      "package": "framework-cmsis",
-      "script": "builder/frameworks/cmsis.py"
     }
   },
   "packages": {
