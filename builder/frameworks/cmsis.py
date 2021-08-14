@@ -167,7 +167,7 @@ def get_linker_script(mcu):
 
     sys.stderr.write(
         """Error: There is no linker script for %s MCU!
-        Please add custom linker script to your project manually!""" % mcu)
+        Please add custom linker script to your project manually!""" % ldscript)
     env.Exit(1)
 #
 #
