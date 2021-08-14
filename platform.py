@@ -95,7 +95,7 @@ class AtmelsamPlatform(PlatformBase):
         # ===== CMSIS =====
         if "cmsis" in variables.get("pioframework", []):
             self.packages["framework-cmsis"]["optional"] = False
-            self.packages["framework-cmsis"]["version"] = "~2.50400.0"
+            self.packages["framework-cmsis"]["version"] = ">=2.50700"
             self.packages["framework-cmsis-atmel"]["optional"] = False
 
         for name in disabled_pkgs:
