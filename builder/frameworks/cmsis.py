@@ -193,5 +193,5 @@ env.Replace(
 
 env.BuildSources(
     os.path.join("$BUILD_DIR", "FrameworkCMSISATMEL"),
-    os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "source", "as_gcc")
+    os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")))
 )
