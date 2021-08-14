@@ -24,24 +24,22 @@ and cutting the time-to-market for devices.
 http://www.arm.com/products/processors/cortex-m/cortex-microcontroller-software-interface-standard.php
 """
 
-import os
 import sys
 import re
+from glob import glob
+from string import Template
+from os.path import isdir, isfile, join, basename
 
 from SCons.Script import DefaultEnvironment
 
 env = DefaultEnvironment()
 platform = env.PioPlatform()
-board = env.BoardConfig()
-
-FRAMEWORK_ATMEL_DIR = platform.get_package_dir("framework-cmsis-atmel")
-FRAMEWORK_DIR = platform.get_package_dir("framework-cmsis")
-#SYSTEM_DIR = os.path.join(FRAMEWORK_DIR, "system")
-
-assert os.path.isdir(FRAMEWORK_ATMEL_DIR)
-assert os.path.isdir(FRAMEWORK_DIR)
 
 env.SConscript("_bare.py")
+
+PLATFORM_NAME = env.get("PIOPLATFORM")
+FRAMEWORK_DIR = platform.get_package_dir("framework-cmsis")
+assert isdir(FRAMEWORK_DIR)
 
 MCU_FAMILY_SELECTORS = {
   'sam3a': r'^sam3a.*$',
@@ -121,7 +119,7 @@ def get_mcu_family(mcu):
 def get_variant_dir(mcu):
     family = get_mcu_family(mcu)
     if family:
-        return os.path.join(FRAMEWORK_ATMEL_DIR, "CMSIS", "Device", "ATMEL", family)
+        return join(FRAMEWORK_DIR, "variants", PLATFORM_NAME, family)
 
     sys.stderr.write(
         """Error: There is no variant dir for %s MCU!
@@ -146,7 +144,7 @@ def adjust_linker_offset(script_name, ldscript):
             r"\1+%s\2-%s" % (offset_address, offset_address),
             content, flags=re.MULTILINE)
 
-    offset_script = os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "source", "as_gcc"
+    offset_script = join(FRAMEWORK_DIR, "platformio", "ldscripts", PLATFORM_NAME,
                     "%s_flash_%s.ld" % (script_name, offset_address))
 
     with open(offset_script, "w") as fp:
@@ -159,39 +157,38 @@ def remove_prefix(s, prefix):
 
 def get_linker_script(mcu):
     script_name = remove_prefix(mcu.lower(), 'at91')
-    ldscript = os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "source", "as_gcc",
+    ldscript = join(FRAMEWORK_DIR, "platformio", "ldscripts", PLATFORM_NAME,
                     script_name + "_flash.ld")
 
-    if os.path.isfile(ldscript):
+    if isfile(ldscript):
         return adjust_linker_offset(script_name, ldscript)
 
     sys.stderr.write(
         """Error: There is no linker script for %s MCU!
         Please add custom linker script to your project manually!""" % mcu)
     env.Exit(1)
-#
-#
-#
-env.Append(
-    CPPPATH=[
-        os.path.join(FRAMEWORK_DIR, "CMSIS", "Core", "Include"),
-        os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "include")
-    ],
 
-    LIBPATH=[
-        os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "source", "as_gcc")
-    ]
-)
+#
+#
+#
+env.Append(CPPPATH=[
+    join(FRAMEWORK_DIR, "CMSIS", "Core", "Include"),
+    join(get_variant_dir(env.BoardConfig().get("build.mcu")), "include")
+])
+
+env.Append(LIBPATH=[
+    join(FRAMEWORK_DIR, "platformio", "ldscripts", "atmelsam")
+])
 
 env.Replace(
-    LDSCRIPT_PATH=get_linker_script(env.BoardConfig().get("build.mcu"))
-)
+    LDSCRIPT_PATH=get_linker_script(env.BoardConfig().get("build.mcu")))
 
 #
 # Target: Build Core Library
 #
 
+# `BuildSources` because with `BuildLibrary` the vector table doesn't get linked in.
 env.BuildSources(
-    os.path.join("$BUILD_DIR", "FrameworkCMSISATMEL"),
-    os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "source", "as_gcc")
+    join("$BUILD_DIR", "FrameworkCMSISVariant"),
+    join(get_variant_dir(env.BoardConfig().get("build.mcu")), "gcc")
 )
