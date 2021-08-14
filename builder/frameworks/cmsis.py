@@ -175,11 +175,12 @@ def get_linker_script(mcu):
 env.Append(
     CPPPATH=[
         os.path.join(FRAMEWORK_DIR, "CMSIS", "Core", "Include"),
-        os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "include")
+        os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "include"),
+        os.path.join(FRAMEWORK_ATMEL_DIR, "CMSIS", "Device", "ATMEL")
     ],
 
     LIBPATH=[
-        os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")))
+        os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "source", "as_gcc")
     ]
 )
 
@@ -193,5 +194,5 @@ env.Replace(
 
 env.BuildSources(
     os.path.join("$BUILD_DIR", "FrameworkCMSISATMEL"),
-    os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")))
+    os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "source", "as_gcc")
 )
