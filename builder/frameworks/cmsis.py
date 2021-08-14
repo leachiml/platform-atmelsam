@@ -179,7 +179,7 @@ env.Append(
     ],
 
     LIBPATH=[
-        os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")), "source", "as_gcc")
+        os.path.join(get_variant_dir(env.BoardConfig().get("build.mcu")))
     ]
 )
 
